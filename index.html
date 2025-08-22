@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Controle Financeiro</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>Controle Financeiro</h1>
+            <div class="header-buttons">
+                <button class="btn btn-save" onclick="salvarDados()">Salvar</button>
+                <button class="btn btn-load" onclick="carregarDados()">Carregar</button>
+            </div>
+        </header>
+
+        <div class="main-grid">
+            <!-- Quadro de Saldo -->
+            <div class="card saldo-card">
+                <h2>SALDO</h2>
+                <div class="saldo-display">
+                    <span class="saldo-valor" id="saldoTotal">R$ 0,00</span>
+                </div>
+            </div>
+
+            <!-- Quadro de Despesas -->
+            <div class="card despesas-card">
+                <div class="card-header">
+                    <h2>DESPESAS</h2>
+                    <button class="btn btn-add" onclick="abrirModalDespesa()">+ Adicionar</button>
+                </div>
+                <div class="card-content">
+                    <div class="lista-items" id="listaDespesas">
+                        <!-- Despesas serão inseridas aqui dinamicamente -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quadro de Receitas -->
+            <div class="card receitas-card">
+                <div class="card-header">
+                    <h2>RECEITAS</h2>
+                    <button class="btn btn-add" onclick="abrirModalReceita()">+ Adicionar</button>
+                </div>
+                <div class="card-content">
+                    <div class="lista-items" id="listaReceitas">
+                        <!-- Receitas serão inseridas aqui dinamicamente -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quadro de Dashboard -->
+            <div class="card dashboard-card">
+                <h2>DASHBOARD</h2>
+                <div class="chart-container">
+                    <canvas id="chartDonut"></canvas>
+                </div>
+            </div>
+
+            <!-- Quadro de Resumo -->
+            <div class="card resumo-card">
+                <div class="card-header">
+                    <h2>RESUMO</h2>
+                    <div class="filtro-data">
+                        <input type="date" id="dataInicio" class="input-date">
+                        <span>até</span>
+                        <input type="date" id="dataFim" class="input-date">
+                        <button class="btn btn-filter" onclick="filtrarPorData()">Filtrar</button>
+                    </div>
+                </div>
+                <div class="card-content">
+                    <div class="resumo-stats">
+                        <div class="stat-item">
+                            <span class="stat-label">Total Receitas:</span>
+                            <span class="stat-valor receitas" id="totalReceitas">R$ 0,00</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Total Despesas:</span>
+                            <span class="stat-valor despesas" id="totalDespesas">R$ 0,00</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Saldo Período:</span>
+                            <span class="stat-valor saldo" id="saldoPeriodo">R$ 0,00</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para Despesas -->
+    <div class="modal" id="modalDespesa">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="tituloModalDespesa">Adicionar Despesa</h3>
+                <button class="btn-close" onclick="fecharModal('modalDespesa')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="formDespesa">
+                    <div class="form-group">
+                        <label for="descricaoDespesa">Descrição:</label>
+                        <input type="text" id="descricaoDespesa" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="valorDespesa">Valor:</label>
+                        <input type="number" id="valorDespesa" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="dataDespesa">Data:</label>
+                        <input type="date" id="dataDespesa" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="categoriaDespesa">Categoria:</label>
+                        <select id="categoriaDespesa">
+                            <option value="Alimentação">Alimentação</option>
+                            <option value="Transporte">Transporte</option>
+                            <option value="Moradia">Moradia</option>
+                            <option value="Saúde">Saúde</option>
+                            <option value="Lazer">Lazer</option>
+                            <option value="Outros">Outros</option>
+                        </select>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-cancel" onclick="fecharModal('modalDespesa')">Cancelar</button>
+                        <button type="submit" class="btn btn-save">Salvar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para Receitas -->
+    <div class="modal" id="modalReceita">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="tituloModalReceita">Adicionar Receita</h3>
+                <button class="btn-close" onclick="fecharModal('modalReceita')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="formReceita">
+                    <div class="form-group">
+                        <label for="descricaoReceita">Descrição:</label>
+                        <input type="text" id="descricaoReceita" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="valorReceita">Valor:</label>
+                        <input type="number" id="valorReceita" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="dataReceita">Data:</label>
+                        <input type="date" id="dataReceita" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="categoriaReceita">Categoria:</label>
+                        <select id="categoriaReceita">
+                            <option value="Salário">Salário</option>
+                            <option value="Freelance">Freelance</option>
+                            <option value="Investimentos">Investimentos</option>
+                            <option value="Vendas">Vendas</option>
+                            <option value="Outros">Outros</option>
+                        </select>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-cancel" onclick="fecharModal('modalReceita')">Cancelar</button>
+                        <button type="submit" class="btn btn-save">Salvar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
+
